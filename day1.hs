@@ -1,9 +1,8 @@
 module Day1 where
-import Data.List(tails)
 
 -- Read the input, split into lines, and parse each line into an Int
 readInput :: IO [Int]
-readInput = map read . lines <$> readFile "input/day1.txt"
+readInput = fmap read . lines <$> readFile "input/day1.txt"
 
 -- A nice way to analyze a list by adjacent pairs is to 
 -- simply zip the list with the tail of the list. 
