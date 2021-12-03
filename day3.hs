@@ -1,4 +1,5 @@
 module Day3 where
+import Data.Function(on)
 
 -- Input reading code
 readInput :: IO [[Int]]
@@ -41,17 +42,11 @@ o2RatingStep (bit, codes) = (bit+1, newCodes)
     newCodes = filter (\c -> (c !! bit) == (gamma !! bit)) codes
     gamma = gammaRate codes
 
--- This is kind of interesting. `iterate` takes a function `(a->a)`, an initial input `a`
--- and then makes an infinite list by repeatedly applying the function. Thanks to the power
--- of lazy evaluation if we do this and take only the first few elements of the list
--- then only the first few iterations will be run!
 o2Rating :: [[Int]] -> Int
 o2Rating = bitstringToInt 
     . head 
     . snd 
-    . head 
-    . dropWhile (\(_, cs) -> length cs > 1) 
-    . iterate o2RatingStep 
+    . until (\(_, cs) -> length cs == 1) o2RatingStep
     . (,) 0
 
 -- The CO2 Rating is the same as above, but with an `epsilonFromGamma` call thrown in
@@ -65,9 +60,7 @@ co2Rating :: [[Int]] -> Int
 co2Rating = bitstringToInt 
     . head 
     . snd 
-    . head 
-    . dropWhile (\(_, cs) -> length cs > 1) 
-    . iterate co2RatingStep 
+    . until (\(_, cs) -> length cs == 1) co2RatingStep
     . (,) 0
 
 part2 :: [[Int]] -> Int 
