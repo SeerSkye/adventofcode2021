@@ -1,5 +1,4 @@
 module Day3 where
-import Data.Function(on)
 
 -- Input reading code
 readInput :: IO [[Int]]
