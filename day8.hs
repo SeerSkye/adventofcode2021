@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings, MultiWayIf #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Day8 where
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
@@ -94,18 +94,18 @@ identifyDigits' (SegmentInput signals digits) = do
     fiveSegments <- find (\s -> (fourMiddle `S.isSubsetOf` s) && S.size s == 5) signals
     threeSegments <- find (\s -> (oneSegments `S.isSubsetOf` s) && S.size s == 5) signals
     twoSegments <- find (\s -> s /= fiveSegments && s /= threeSegments && S.size s == 5) signals
-    let getDigit = (\s -> if
-            | s == zeroSegments -> Just 0
-            | s == oneSegments -> Just 1
-            | s == twoSegments -> Just 2
-            | s == threeSegments -> Just 3
-            | s == fourSegments -> Just 4
-            | s == fiveSegments -> Just 5
-            | s == sixSegments -> Just 6
-            | s == sevenSegments -> Just 7
-            | s == eightSegments -> Just 8
-            | s == nineSegments -> Just 9
-            | otherwise -> Nothing)
+    let getDigit s
+            | s == zeroSegments = Just 0
+            | s == oneSegments = Just 1
+            | s == twoSegments = Just 2
+            | s == threeSegments = Just 3
+            | s == fourSegments = Just 4
+            | s == fiveSegments = Just 5
+            | s == sixSegments = Just 6
+            | s == sevenSegments = Just 7
+            | s == eightSegments = Just 8
+            | s == nineSegments = Just 9
+            | otherwise = Nothing
     mapM getDigit digits
 
 part2' :: [SegmentInput] -> Maybe Int
