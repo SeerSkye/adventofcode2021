@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, MultiWayIf #-}
 module Day8 where
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
@@ -76,3 +76,37 @@ digitListToInt = foldr (\(a, x) acc -> acc + x*10^a) 0 . zip [0..] . reverse
 
 part2 :: [SegmentInput] -> Int 
 part2 = sum . fmap (digitListToInt . identifyDigits)
+
+-- Actually you know what let's do that rewrite into the maybe monad mentioned above.
+-- If you are familiar with rust, this is the equivalent of going from
+-- code that's filled with `unwrap()` calls that will crash the program
+-- to code that instead returns an Option and uses the `?` operator everywhere
+identifyDigits' :: SegmentInput -> Maybe [Int]
+identifyDigits' (SegmentInput signals digits) = do
+    oneSegments <- find ((==2) . S.size) signals
+    sevenSegments <- find ((==3) . S.size) signals
+    fourSegments <- find ((==4) . S.size) signals
+    eightSegments <- find ((==7) . S.size) signals
+    let fourMiddle = fourSegments \\ oneSegments
+    zeroSegments <- find (\s -> not (fourMiddle `S.isSubsetOf` s) && S.size s == 6) signals
+    nineSegments <- find (\s -> (oneSegments `S.isSubsetOf` s) && s /= zeroSegments && S.size s == 6) signals
+    sixSegments <- find (\s -> s /= zeroSegments && s /= nineSegments && S.size s == 6) signals
+    fiveSegments <- find (\s -> (fourMiddle `S.isSubsetOf` s) && S.size s == 5) signals
+    threeSegments <- find (\s -> (oneSegments `S.isSubsetOf` s) && S.size s == 5) signals
+    twoSegments <- find (\s -> s /= fiveSegments && s /= threeSegments && S.size s == 5) signals
+    let getDigit = (\s -> if
+            | s == zeroSegments -> Just 0
+            | s == oneSegments -> Just 1
+            | s == twoSegments -> Just 2
+            | s == threeSegments -> Just 3
+            | s == fourSegments -> Just 4
+            | s == fiveSegments -> Just 5
+            | s == sixSegments -> Just 6
+            | s == sevenSegments -> Just 7
+            | s == eightSegments -> Just 8
+            | s == nineSegments -> Just 9
+            | otherwise -> Nothing)
+    mapM getDigit digits
+
+part2' :: [SegmentInput] -> Maybe Int
+part2' = fmap (sum . fmap digitListToInt) . mapM identifyDigits'
