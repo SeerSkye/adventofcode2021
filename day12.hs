@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Day12 where
-import Control.Monad(guard)
+import Data.Char(isUpper)
 import Data.Containers.ListUtils (nubOrd)
 import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HashMap
@@ -28,7 +28,7 @@ readInput :: IO Graph
 readInput = graphFromEdges . fmap splitEdge . Text.lines <$> Text.IO.readFile "input/day12.txt"
 
 isBig :: Text -> Bool
-isBig text = Text.toUpper text == text
+isBig = Text.all isUpper
 
 -- Given a graph, a start vertex, and an end vertex, find the list of all
 -- paths (as lists of vertexes) between them
@@ -36,10 +36,10 @@ listPaths :: Graph -> Text -> Text -> [NonEmpty Text]
 listPaths graph start end = go graph (pure start) end
   where 
     go :: Graph -> NonEmpty Text -> Text -> [NonEmpty Text]
-    go graph path@(head :| _) end 
-        | head == end = return path
+    go graph path@(currVtx :| _) end 
+        | currVtx == end = return path
         | otherwise = do
-            nextVtx <- filter (\t -> isBig t || (t `notElem` path)) $ HashMap.findWithDefault [] head graph
+            nextVtx <- filter (\t -> isBig t || (t `notElem` path)) $ HashMap.findWithDefault [] currVtx graph
             go graph (nextVtx <| path) end
 
 part1 :: Graph -> Int
@@ -59,10 +59,10 @@ listPaths2 :: Graph -> Text -> Text -> [NonEmpty Text]
 listPaths2 graph start end = go graph (pure start) end
   where 
     go :: Graph -> NonEmpty Text -> Text -> [NonEmpty Text]
-    go graph path@(head :| _) end 
-        | head == end = return path
+    go graph path@(currVtx :| _) end 
+        | currVtx == end = return path
         | otherwise = do
-            nextVtx <- filter (canVisit path) $ HashMap.findWithDefault [] head graph
+            nextVtx <- filter (canVisit path) $ HashMap.findWithDefault [] currVtx graph
             go graph (nextVtx <| path) end
 
 part2 :: Graph -> Int
