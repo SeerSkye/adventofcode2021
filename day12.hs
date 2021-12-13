@@ -45,25 +45,33 @@ listPaths graph start end = go graph (pure start) end
 part1 :: Graph -> Int
 part1 g = length $ listPaths g "start" "end"
 
-canVisit :: NonEmpty Text -> Text -> Bool
-canVisit path vtx
+-- keep track of not only the path but also whether or not
+-- we can still visit a small room twice
+type Path = (NonEmpty Text, Bool)
+
+canVisit :: Path -> Text -> Bool
+canVisit (path, canRevisit) vtx
     | vtx == "start" || vtx == "end" = vtx `notElem` path 
     | isBig vtx = True
     | otherwise = vtx `notElem` path || canRevisit
-  where
-    smallPathVtxs = NonEmpty.filter (not . isBig) path
-    canRevisit = nubOrd smallPathVtxs == smallPathVtxs
 
--- just copypasted from above, but with the new filter function
-listPaths2 :: Graph -> Text -> Text -> [NonEmpty Text]
-listPaths2 graph start end = go graph (pure start) end
+appendToPath :: Path -> Text -> Path
+appendToPath (path, canRevisit) vtx
+    | not canRevisit = (vtx <| path, False)
+    | vtx `elem` NonEmpty.filter (not . isBig) path = (vtx <| path, False)
+    | otherwise = (vtx <| path, True)
+
+-- largely copypasted from above, but with the new filter function and modified
+-- to work with our extended path type
+listPaths2 :: Graph -> Text -> Text -> [Path]
+listPaths2 graph start end = go graph (pure start, True) end
   where 
-    go :: Graph -> NonEmpty Text -> Text -> [NonEmpty Text]
-    go graph path@(currVtx :| _) end 
+    go :: Graph -> Path -> Text -> [Path]
+    go graph path@(currVtx :| _, _) end 
         | currVtx == end = return path
         | otherwise = do
             nextVtx <- filter (canVisit path) $ HashMap.findWithDefault [] currVtx graph
-            go graph (nextVtx <| path) end
+            go graph (appendToPath path nextVtx) end
 
 part2 :: Graph -> Int
 part2 g = length $ listPaths2 g "start" "end"
