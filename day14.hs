@@ -6,11 +6,10 @@ import qualified Data.Text.IO as Text.IO
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Attoparsec.Text
-import Data.List (sort, group, sortBy)
+import Data.List (sort, group)
 import Control.Arrow((&&&))
 import Control.Applicative((<|>))
 import Data.Either(fromRight)
-import Data.Function(on)
 
 -- Okay, so, a naive approach to this solution would involve
 -- storing a list that exponentially increases in size. I like
