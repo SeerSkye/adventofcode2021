@@ -18,4 +18,4 @@ hitsTarget = go (0,0)
         | inTarget p = True
         | otherwise = go (x+vx, y+vy) (max 0 (vx - 1), vy - 1)
 
-part2 = length $ filter hitsTarget $ range ((0, -136),(-193, 135))
+part2 = length $ filter hitsTarget $ range ((0, -136),(193, 135))
