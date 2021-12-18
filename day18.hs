@@ -39,6 +39,11 @@ readInput = fmap parseInput . Text.lines <$> Text.IO.readFile "input/day18.txt"
 reduce :: [(Int, Int)] -> [(Int, Int)]
 reduce = explode . Zipper []
 
+-- This is kind of inefficient and does a bunch of unneccesary walking.
+-- I originally had a single function that both exploded and split, but that
+-- didn't actually solve the problem as stated: all explosions must be done before
+-- any splits. It would probably be possible to create an explode and split that works
+-- after an initial pass that just explodes, but it would be fair bit more complicated
 explode :: Zipper (Int, Int) -> [(Int, Int)]
 explode (Zipper [] ((x, 4):(y,4):(r, rl):rights)) = -- exploding with no value to the left
     explode $ Zipper [] ((0, 3):(y+r, rl):rights)
