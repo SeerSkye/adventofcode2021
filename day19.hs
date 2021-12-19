@@ -30,8 +30,8 @@ distance (x1, y1, z1) (x2, y2, z2) = sqrt
     + (fromIntegral y1 - fromIntegral y2)^2 
     + (fromIntegral z1 - fromIntegral z2)^2
 
-distVec :: Point -> Point -> Point
-distVec (x1, y1, z1) (x2, y2, z2) = (x1 - x2, y1 - y2, z1 - z2)
+subVec :: Point -> Point -> Point
+subVec (x1, y1, z1) (x2, y2, z2) = (x1 - x2, y1 - y2, z1 - z2)
 
 addVec :: Point -> Point -> Point
 addVec (x1, y1, z1) (x2, y2, z2) = (x1 + x2, y1 + y2, z1 + z2)
@@ -85,7 +85,7 @@ allRotations :: [Point -> Point]
 allRotations = [a . b | a <- turns, b <- facings]
 
 sameRotation :: [(Point, Point)] -> Bool
-sameRotation sharedSet = length (group $ fmap (uncurry distVec) sharedSet) == 1
+sameRotation sharedSet = length (group $ fmap (uncurry subVec) sharedSet) == 1
 
 -- If the two input scanners have overlapping range, combine them into a single set
 -- in the coordinate system of the first parameter, along with returning the second
@@ -95,8 +95,8 @@ combineScans scan1 scan2 = case sharedSet of
     [] -> Nothing
     (p1, p2):_ -> case findTransform allRotations of
         Nothing -> Nothing
-        Just rot -> let scannerPos= distVec (rot p2) p1 in
-            Just (scannerPos, nubOrd $ scan1 ++ fmap ((`distVec` scannerPos) . rot) scan2)
+        Just rot -> let scannerPos = subVec (rot p2) p1 in
+            Just (scannerPos, nubOrd $ scan1 ++ fmap ((`subVec` scannerPos) . rot) scan2)
   where
     sharedSet = findSharedSet scan1 scan2
     findTransform [] = Nothing
