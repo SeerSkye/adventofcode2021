@@ -4,6 +4,8 @@ import Control.Monad(replicateM)
 import Control.Monad.Loops(untilM)
 import Data.IntMap.Strict (IntMap)
 import qualified Data.IntMap.Strict as IntMap
+import Data.List (group, sort)
+import Control.Arrow((&&&))
 
 p1start :: Int
 p1start = 9
@@ -98,17 +100,17 @@ part1 = evalState runGame gameStart
 -- given a player start location and turn, return a map of how many universes that player wins after
 -- taking a particular number of moves
 winningStates :: Int -> IntMap Int
-winningStates loc = go 0 loc 0
+winningStates loc = go 0 loc 0 1
   where
     move loc roll = ((loc - 1 + roll) `mod` 10) + 1
-    go score loc turns 
-        | score >= 21 = IntMap.singleton turns 1 
+    go score loc turns count 
+        | score >= 21 = IntMap.singleton turns count
         | otherwise = IntMap.unionsWith (+) 
-            [go (score + move loc x) (move loc x) (turns+1)
-            | x <- threeRolls]
+            [go (score + move loc x) (move loc x) (turns+1) (count*c)
+            | (c, x) <- threeRolls]
 
-threeRolls :: [Int]
-threeRolls = [x+y+z | x <- [1,2,3], y <- [1,2,3], z <- [1,2,3]]
+threeRolls :: [(Int, Int)]
+threeRolls = fmap (length &&& head) $ group $ sort $ [x+y+z | x <- [1,2,3], y <- [1,2,3], z <- [1,2,3]]
 
 -- after n turns, how many possible move sequences could have been taken where the player
 -- didn't win given the count of winning universes in the map
