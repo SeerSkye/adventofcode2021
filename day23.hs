@@ -1,0 +1,1 @@
+-- Day 23 was solved entirely by hand. No code here.
